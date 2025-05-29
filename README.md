@@ -28,8 +28,7 @@ This is a React Native application that streams live TV channels with support fo
 1. Clone the repo:
 
    ```bash
-   git clone https://github.com/yourusername/live-tv-streaming-app.git
-   cd live-tv-streaming-app
+   git clone https://github.com/Akash562/Channels.git
    ```
 
 2. Install dependencies:
@@ -52,18 +51,6 @@ This is a React Native application that streams live TV channels with support fo
 ## ✍️ Customizing Channels
 
 Update the `channels.js` file to add or modify the list of available channels:
-
-```js
-export const channels = [
-  {
-    title: 'Music Channel',
-    url: 'http://example.com/stream1.m3u8',
-    logo: 'http://example.com/logo1.png',
-    group: 'Music',
-  },
-  ...
-];
-```
 
 ---
 
