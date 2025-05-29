@@ -1,4 +1,4 @@
-# 📺 React Native Live TV Streaming App
+# 📺 React Native Live Streaming App
 
 This is a React Native application that streams live TV channels with support for volume and brightness gestures, full-screen landscape video playback, and categorized filtering.
 
@@ -64,11 +64,23 @@ Update the `channels.js` file to add or modify the list of available channels:
 ---
 
 ## 📄 License
-
-This project is open source.
+project is open source.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙇‍♂️ Contact
+## 🙇‍♂️ Contributing
+We welcome contributions to enhance the project. To contribute:
 
-For issues or contributions, feel free to open an [Issue](https://github.com/Akash562) or submit a PR.
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes and commit (`git commit -m 'Add some feature'`).
+4. Push to the branch (`git push origin feature-branch`).
+5. Create a pull request.
+
+## 💰 Support this project
+If you find this project useful, Give A Star 🌟
+
+
+![alt text](image.png) Happy Coding
+![alt text](image-1.png) Happy Coding

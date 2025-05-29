@@ -1,43 +1,38 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
-  View,
-  Text,
-  FlatList,
-  Image,
-  TouchableOpacity,
-  Modal,
-  StyleSheet,
-  Dimensions,
-  TextInput,
-  SafeAreaView,
-  StatusBar
+  View, Text, FlatList, Image, TouchableOpacity, Modal, StyleSheet,
+  Dimensions, TextInput, SafeAreaView, StatusBar,
+  Animated, PanResponder
 } from 'react-native';
 import Video from 'react-native-video';
 
-import {
-  PanGestureHandler,
-  State,
-  GestureHandlerRootView,
-} from 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import SystemSetting from 'react-native-system-setting';
 import Orientation from 'react-native-orientation-locker';
+import SQLite from 'react-native-sqlite-storage';
+import LottieView from 'lottie-react-native';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-import {channels} from './channels';
+import { channels } from './channels';
+
+const db = SQLite.openDatabase({ name: 'tv.db', location: 'default' });
 
 export default function App() {
 
   const channelData = channels;
   const [selectedChannel, setSelectedChannel] = useState(false);
-  const [brightness, setBrightness] = useState(0);
-  const [volume, setVolume] = useState(0);
-  const [showOverlay, setShowOverlay] = useState(null);
+
   const [search, setSearch] = useState('');
   const [groupFilter, setGroupFilter] = useState('All');
-  const overlayTimeoutRef = useRef(null);
   const videoRef = useRef(null);
+
+  const [brightness, setBrightness] = useState(0);
+  const [volume, setVolume] = useState(0);
+
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initSettings = async () => {
@@ -45,51 +40,54 @@ export default function App() {
       setBrightness(await SystemSetting.getBrightness());
     };
     initSettings();
+    db.transaction(tx => {
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS favorites (title TEXT PRIMARY KEY);'
+      );
+    }, console.error, loadFavorites);
   }, []);
 
-useEffect(() => {
-  if (selectedChannel) {
-    Orientation.lockToLandscape();
-  } else {
-    Orientation.lockToPortrait();
-  }
-}, [selectedChannel]);
-
-  const handleGesture = ({nativeEvent}) => {
-    const {translationY, absoluteX, state} = nativeEvent;
-    if (state !== State.ACTIVE) return;
-
-    const isLeft = absoluteX < width / 2;
-    const isUp = translationY < -10;
-    const isDown = translationY > 10;
-
-    if (isUp || isDown) {
-      if (isLeft) {
-        SystemSetting.getBrightness().then(current => {
-          const newVal = isUp
-            ? Math.min(1, current + 0.05)
-            : Math.max(0, current - 0.05);
-          SystemSetting.setBrightness(newVal);
-          setBrightness(newVal);
-          showOverlayWithTimeout('brightness');
-        });
-      } else {
-        SystemSetting.getVolume().then(current => {
-          const newVal = isUp
-            ? Math.min(1, current + 0.05)
-            : Math.max(0, current - 0.05);
-          SystemSetting.setVolume(newVal);
-          setVolume(newVal);
-          showOverlayWithTimeout('volume');
-        });
-      }
+  useEffect(() => {
+    if (selectedChannel) {
+      Orientation.lockToLandscape();
+    } else {
+      Orientation.lockToPortrait();
     }
+  }, [selectedChannel]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gesture) => {
+        const { dx, dy, moveX } = gesture;
+        if (moveX < Dimensions.get('window').width / 2) {
+          setBrightness(prev => Math.min(Math.max(prev + dy * -0.005, 0), 1));
+        } else {
+          setVolume(prev => Math.min(Math.max(prev + dy * -0.005, 0), 1));
+        }
+      }
+    })
+  ).current;
+
+  const loadFavorites = () => {
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM favorites', [], (tx, results) => {
+        const rows = results.rows.raw();
+        const favTitles = rows.map(row => row.title);
+        setFavorites(favTitles);
+      });
+    });
   };
 
-  const showOverlayWithTimeout = type => {
-    setShowOverlay(type);
-    if (overlayTimeoutRef.current) clearTimeout(overlayTimeoutRef.current);
-    overlayTimeoutRef.current = setTimeout(() => setShowOverlay(null), 1000);
+  const toggleFavorite = (channel) => {
+    const isFav = favorites.includes(channel.title);
+    db.transaction(tx => {
+      if (isFav) {
+        tx.executeSql('DELETE FROM favorites WHERE title = ?', [channel.title]);
+      } else {
+        tx.executeSql('INSERT INTO favorites (title) VALUES (?)', [channel.title]);
+      }
+    }, console.error, loadFavorites);
   };
 
   const filteredChannels = channelData.filter(channel => {
@@ -100,20 +98,23 @@ useEffect(() => {
     return matchSearch && matchGroup;
   });
 
-  const renderCard = ({item}) => (
+  const renderCard = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => setSelectedChannel(item)}>
-      <Image source={{uri: item.logo}} style={styles.logo} />
+      <TouchableOpacity onPress={() => toggleFavorite(item)} style={{ width: '100%', justifyContent: 'center', alignItems: 'flex-end' }}>
+        <Text style={styles.heart}>{favorites.includes(item.title) ? '❤️' : '🤍'}</Text>
+      </TouchableOpacity>
+      <Image source={{ uri: item.logo }} style={styles.logo} />
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#111'}}>
-      <GestureHandlerRootView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#111' }}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={styles.container}>
           <StatusBar hidden={!!selectedChannel} />
-          <Text style={styles.header}>TV Channels</Text>
+          <Text style={styles.header}>Streaming Channels</Text>
 
           <TextInput
             placeholder="Search..."
@@ -125,17 +126,35 @@ useEffect(() => {
 
           <View style={styles.filterContainer}>
             {['All', 'Music', 'News', 'Movies', 'Religious'].map(g => (
-              <TouchableOpacity
-                key={g}
-                style={[
-                  styles.filterBtn,
-                  groupFilter === g && styles.filterActive,
-                ]}
+              <TouchableOpacity key={g} style={[styles.filterBtn, groupFilter === g && styles.filterActive]}
                 onPress={() => setGroupFilter(g)}>
                 <Text style={styles.filterText}>{g}</Text>
               </TouchableOpacity>
             ))}
           </View>
+
+          {favorites.length > 0 && (
+            <View style={{ marginVertical: 10 }}>
+              <Text style={styles.favHeading}>⭐ Favorites</Text>
+              <FlatList
+                data={channelData.filter(c => favorites.includes(c.title))}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={item => item.title}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.favCard}
+                    onPress={() => {
+                      setSelectedChannel(item);
+                      setModalVisible(true);
+                    }}>
+                    <Image source={{ uri: item.logo }} style={styles.favLogo} />
+                    <Text style={styles.favTitle}>{item.title}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
 
           <FlatList
             data={filteredChannels}
@@ -147,51 +166,40 @@ useEffect(() => {
 
           <Modal
             visible={!!selectedChannel}
-            onOrientationChange={()=>Orientation.lockToLandscape()}
-            >
-            <PanGestureHandler onGestureEvent={handleGesture}>
-              <View style={styles.modalContainer}>
-                {selectedChannel?.url?.startsWith('http') && (
+            onOrientationChange={() => Orientation.lockToLandscape()}>
+            <View style={styles.modalContainer}>
+              {selectedChannel?.url?.startsWith('http') && (
+                <Animated.View
+                  {...panResponder.panHandlers}
+                  style={[styles.videoContainer]}>
+
+                  {loading && (
+                    <LottieView
+                      source={require('./src/assets/loading.json')}
+                      autoPlay
+                      loop
+                      style={styles.loader}
+                    />
+                  )}
                   <Video
-                    source={{uri: selectedChannel.url}}
                     ref={videoRef}
+                    source={{ uri: selectedChannel.url }}
                     style={StyleSheet.absoluteFillObject}
                     controls
                     resizeMode="contain"
                     repeat
+                    volume={10}
+                    onLoadStart={() => setLoading(true)}
+                    onLoad={() => setLoading(false)}
                     onError={() => setSelectedChannel(false)}
                   />
-                )}
-                <TouchableOpacity
-                  style={styles.closeBtn}
-                  onPress={() => setSelectedChannel(false)}>
-                  <Text style={styles.closeText}>Close</Text>
-                </TouchableOpacity>
+                </Animated.View>
+              )}
+              <TouchableOpacity style={styles.closeBtn} onPress={() => setSelectedChannel(false)}>
+                <Text style={styles.closeText}>Close</Text>
+              </TouchableOpacity>
 
-                {showOverlay && (
-                  <View style={styles.overlayContainer}>
-                    <View style={styles.overlayBox}>
-                      <Text style={styles.overlayText}>
-                        {showOverlay === 'brightness'
-                          ? '🔆 Brightness'
-                          : '🔊 Volume'}
-                      </Text>
-                      <View style={styles.overlayBarBackground}>
-                        <View
-                          style={{
-                            height: '100%',
-                            width: `${
-                              showOverlay === 'brightness' ? brightness : volume
-                            }00%`,
-                            backgroundColor: '#0f0',
-                          }}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                )}
-              </View>
-            </PanGestureHandler>
+            </View>
           </Modal>
 
         </View>
@@ -201,9 +209,9 @@ useEffect(() => {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, paddingHorizontal: 10},
+  container: { flex: 1, paddingHorizontal: 10 },
 
-  header: {fontSize: 22, color: '#fff', textAlign: 'center', marginBottom: 10},
+  header: { fontSize: 22, color: '#fff', textAlign: 'center', marginBottom: 10 },
 
   searchBar: {
     backgroundColor: '#fff',
@@ -224,8 +232,8 @@ const styles = StyleSheet.create({
     margin: 4,
     borderRadius: 10,
   },
-  filterActive: {backgroundColor: 'green'},
-  filterText: {color: '#fff'},
+  filterActive: { backgroundColor: 'green' },
+  filterText: { color: '#fff' },
   card: {
     flex: 1,
     backgroundColor: '#fff',
@@ -236,9 +244,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
   },
-  logo: {width: 100, height: 60, resizeMode: 'contain', marginBottom: 5},
-  title: {color: '#fff', fontSize: 14, textAlign: 'center'},
-  modalContainer: {flex: 1, backgroundColor: 'black', justifyContent: 'center'},
+  logo: { width: 100, height: 60, resizeMode: 'contain', marginBottom: 5 },
+  title: { color: '#fff', fontSize: 14, textAlign: 'center' },
+  modalContainer: { flex: 1, backgroundColor: 'black', justifyContent: 'center' },
   closeBtn: {
     position: 'absolute',
     top: 40,
@@ -247,7 +255,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#00000088',
     borderRadius: 6,
   },
-  closeText: {color: '#fff', fontSize: 16},
+  closeText: { color: '#fff', fontSize: 16 },
   overlayContainer: {
     position: 'absolute',
     top: '40%',
@@ -262,12 +270,55 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  overlayText: {color: 'white', fontSize: 16, marginBottom: 10},
+  overlayText: { color: 'white', fontSize: 16, marginBottom: 10 },
   overlayBarBackground: {
     width: '100%',
     height: 8,
     backgroundColor: '#444',
     borderRadius: 4,
     overflow: 'hidden',
+  },
+
+  favHeading: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 10,
+    marginBottom: 5
+  },
+  favCard: {
+    width: 120,
+    backgroundColor: '#111',
+    borderRadius: 10,
+    marginHorizontal: 5,
+    padding: 8,
+    alignItems: 'center'
+  },
+  favLogo: {
+    width: 80,
+    height: 50,
+    resizeMode: 'contain'
+  },
+  favTitle: {
+    color: '#fff',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 5
+  },
+
+  videoContainer: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+  video: {
+    width: '100%',
+    height: '100%'
+  },
+  loader: {
+    width: 100,
+    height: 100,
+    alignSelf: 'center',
+    position: 'absolute',
+    top: '40%'
   },
 });
