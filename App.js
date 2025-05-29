@@ -149,7 +149,6 @@ export default function App() {
                       setModalVisible(true);
                     }}>
                     <Image source={{ uri: item.logo }} style={styles.favLogo} />
-                    <Text style={styles.favTitle}>{item.title}</Text>
                   </TouchableOpacity>
                 )}
               />
@@ -288,11 +287,13 @@ const styles = StyleSheet.create({
   },
   favCard: {
     width: 120,
-    backgroundColor: '#111',
+    height: 100,
+    backgroundColor: '#fff',
     borderRadius: 10,
     marginHorizontal: 5,
     padding: 8,
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   favLogo: {
     width: 80,
