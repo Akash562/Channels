@@ -82,5 +82,10 @@ We welcome contributions to enhance the project. To contribute:
 If you find this project useful, Give A Star 🌟
 
 
-![alt text](image.png) Happy Coding
-![alt text](image-1.png) Happy Coding
+
+
+
+
+
+![alt text](image-1.png) 
+      Happy Coding
