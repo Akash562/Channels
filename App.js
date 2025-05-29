@@ -146,8 +146,9 @@ useEffect(() => {
           />
 
           <Modal
-            visible={!!selectedChannel}>
-             {/* onRequestClose={() => setSelectedChannel(null)}> */}
+            visible={!!selectedChannel}
+            onOrientationChange={()=>Orientation.lockToLandscape()}
+            >
             <PanGestureHandler onGestureEvent={handleGesture}>
               <View style={styles.modalContainer}>
                 {selectedChannel?.url?.startsWith('http') && (
@@ -158,7 +159,7 @@ useEffect(() => {
                     controls
                     resizeMode="contain"
                     repeat
-                    onError={e => setSelectedChannel(false)}
+                    onError={() => setSelectedChannel(false)}
                   />
                 )}
                 <TouchableOpacity
