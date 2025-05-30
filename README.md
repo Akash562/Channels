@@ -14,9 +14,7 @@ You can download the latest Android APK
 
 ## 📷 Screenshots
 
-|               -                 |
-| ------------------------------- |
-| ![Home](assets/screenshot1.png) |
+<img src="assets/screenshot1.png" alt="Home Screen" width="430" height="926" />
 
 ---
 
