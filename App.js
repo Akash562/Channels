@@ -8,7 +8,6 @@ import Video from 'react-native-video';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import SystemSetting from 'react-native-system-setting';
 import Orientation from 'react-native-orientation-locker';
 import SQLite from 'react-native-sqlite-storage';
 import LottieView from 'lottie-react-native';
@@ -28,18 +27,10 @@ export default function App() {
   const [groupFilter, setGroupFilter] = useState('All');
   const videoRef = useRef(null);
 
-  const [brightness, setBrightness] = useState(0);
-  const [volume, setVolume] = useState(0);
-
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initSettings = async () => {
-      setVolume(await SystemSetting.getVolume());
-      setBrightness(await SystemSetting.getBrightness());
-    };
-    initSettings();
     db.transaction(tx => {
       tx.executeSql(
         'CREATE TABLE IF NOT EXISTS favorites (title TEXT PRIMARY KEY);'
