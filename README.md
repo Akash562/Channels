@@ -1,6 +1,6 @@
 # 📺 React Native Live Streaming App
 
-This is a React Native application that streams live TV channels with support for volume and brightness gestures, full-screen landscape video playback, and categorized filtering.
+This is a React Native application that streams live with support for volume and brightness gestures, full-screen landscape video playback, and categorized filtering.
 
 ---
 
