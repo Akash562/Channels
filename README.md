@@ -94,6 +94,3 @@ We welcome contributions to enhance the project. To contribute:
 
 ## 💰 Support this project
 If you find this project useful, Give A Star 🌟
-
-
-![alt text](image.png)
