@@ -13,8 +13,6 @@ import Orientation from 'react-native-orientation-locker';
 import SQLite from 'react-native-sqlite-storage';
 import LottieView from 'lottie-react-native';
 
-const { width } = Dimensions.get('window');
-
 import { channels } from './channels';
 
 const db = SQLite.openDatabase({ name: 'tv.db', location: 'default' });
