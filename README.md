@@ -6,7 +6,7 @@ This is a React Native application that streams live with support for volume and
 
 ## 📦 Download APK
 You can download the latest Android APK 
-[⬇️ Download APK](https://example.com/path-to-your-apk.apk)
+[⬇️ Download APK](assets/stream.apk)
 
 > ⚠️ Make sure to allow installs from unknown sources on your Android device.
 
@@ -14,9 +14,9 @@ You can download the latest Android APK
 
 ## 📷 Screenshots
 
-| Home Screen                     | Video Player with Controls        |
-| ------------------------------- | --------------------------------- |
-| ![Home](assets/screenshot1.png) | ![Player](assets/screenshot2.png) |
+| Home Screen                     |
+| ------------------------------- |
+| ![Home](assets/screenshot1.png) |
 
 ---
 
