@@ -70,16 +70,15 @@ Update the `channels.js` file to add or modify the list of available channels:
 
 ## 🚲 Future Enhancements (Suggestions)
 
+* User favorites & persistent storage
 * Chromecast or AirPlay support
 * Background audio playback
-* User favorites & persistent storage
 * Program guide (EPG)
 
 ---
 
 ## 📄 License
-project is open source.
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+project is under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
