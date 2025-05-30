@@ -4,6 +4,14 @@ This is a React Native application that streams live with support for volume and
 
 ---
 
+## 📦 Download APK
+You can download the latest Android APK 
+[⬇️ Download APK](https://example.com/path-to-your-apk.apk)
+
+> ⚠️ Make sure to allow installs from unknown sources on your Android device.
+
+---
+
 ## 🚀 Features
 
 * 🔍 **Search & Filter Channels**
