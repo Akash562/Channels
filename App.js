@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, FlatList, Image, TouchableOpacity, Modal, StyleSheet,
   Dimensions, TextInput, SafeAreaView, StatusBar,
-  Animated, PanResponder
+  Animated, PanResponder,
+  Platform
 } from 'react-native';
 import Video from 'react-native-video';
 
@@ -101,7 +102,7 @@ export default function App() {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#111' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#111', paddingTop: Platform.OS == 'ios' ? 0 : 50 }}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={styles.container}>
           <StatusBar hidden={!!selectedChannel} />
@@ -137,7 +138,6 @@ export default function App() {
                     style={styles.favCard}
                     onPress={() => {
                       setSelectedChannel(item);
-                      setModalVisible(true);
                     }}>
                     <Image source={{ uri: item.logo }} style={styles.favLogo} />
                   </TouchableOpacity>
