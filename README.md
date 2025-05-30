@@ -83,13 +83,7 @@ project is under the MIT License. See the [LICENSE](LICENSE) file for details.
 ---
 
 ## 🙇‍♂️ Contributing
-We welcome contributions to enhance the project. To contribute:
-
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Make your changes and commit (`git commit -m 'Add some feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Create a pull request.
+We welcome contributions to enhance the project.
 
 ## 💰 Support this project
 If you find this project useful, Give A Star 🌟

@@ -1,18 +1,34 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, Modal, StyleSheet, Dimensions, TextInput, SafeAreaView, StatusBar, Animated, PanResponder, Platform } from 'react-native';
+import React, {useState, useRef, useEffect} from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  Modal,
+  StyleSheet,
+  Dimensions,
+  TextInput,
+  SafeAreaView,
+  StatusBar,
+  Animated,
+  PanResponder,
+  Platform,
+} from 'react-native';
 import Video from 'react-native-video';
 
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import SQLite from 'react-native-sqlite-storage';
 import LottieView from 'lottie-react-native';
 
-import { channels } from './channels';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
-const db = SQLite.openDatabase({ name: 'tv.db', location: 'default' });
+import {channels} from './channels';
+
+const db = SQLite.openDatabase({name: 'tv.db', location: 'default'});
 
 export default function App() {
-
   const channelData = channels;
   const [selectedChannel, setSelectedChannel] = useState(false);
 
@@ -23,12 +39,17 @@ export default function App() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS favorites (title TEXT PRIMARY KEY);'
-      );
-    }, console.error, loadFavorites);
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'CREATE TABLE IF NOT EXISTS favorites (title TEXT PRIMARY KEY);',
+        );
+      },
+      console.error,
+      loadFavorites,
+    );
   }, []);
 
   useEffect(() => {
@@ -43,14 +64,14 @@ export default function App() {
     PanResponder.create({
       onMoveShouldSetPanResponder: () => true,
       onPanResponderMove: (_, gesture) => {
-        const { dx, dy, moveX } = gesture;
+        const {dx, dy, moveX} = gesture;
         if (moveX < Dimensions.get('window').width / 2) {
           setBrightness(prev => Math.min(Math.max(prev + dy * -0.005, 0), 1));
         } else {
           setVolume(prev => Math.min(Math.max(prev + dy * -0.005, 0), 1));
         }
-      }
-    })
+      },
+    }),
   ).current;
 
   const loadFavorites = () => {
@@ -63,15 +84,23 @@ export default function App() {
     });
   };
 
-  const toggleFavorite = (channel) => {
+  const toggleFavorite = channel => {
     const isFav = favorites.includes(channel.title);
-    db.transaction(tx => {
-      if (isFav) {
-        tx.executeSql('DELETE FROM favorites WHERE title = ?', [channel.title]);
-      } else {
-        tx.executeSql('INSERT INTO favorites (title) VALUES (?)', [channel.title]);
-      }
-    }, console.error, loadFavorites);
+    db.transaction(
+      tx => {
+        if (isFav) {
+          tx.executeSql('DELETE FROM favorites WHERE title = ?', [
+            channel.title,
+          ]);
+        } else {
+          tx.executeSql('INSERT INTO favorites (title) VALUES (?)', [
+            channel.title,
+          ]);
+        }
+      },
+      console.error,
+      loadFavorites,
+    );
   };
 
   const filteredChannels = channelData.filter(channel => {
@@ -82,20 +111,33 @@ export default function App() {
     return matchSearch && matchGroup;
   });
 
-  const renderCard = ({ item }) => (
+  const renderCard = ({item}) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => setSelectedChannel(item)}>
-      <TouchableOpacity onPress={() => toggleFavorite(item)} style={{ width: '100%', justifyContent: 'center', alignItems: 'flex-end' }}>
-        <Text style={styles.heart}>{favorites.includes(item.title) ? '❤️' : '🤍'}</Text>
+      <TouchableOpacity
+        onPress={() => toggleFavorite(item)}
+        style={{
+          width: '100%',
+          justifyContent: 'center',
+          alignItems: 'flex-end',
+        }}>
+        <Text style={styles.heart}>
+          {favorites.includes(item.title) ? '❤️' : '🤍'}
+        </Text>
       </TouchableOpacity>
-      <Image source={{ uri: item.logo }} style={styles.logo} />
+      <Image source={{uri: item.logo}} style={styles.logo}/>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#111', paddingTop: Platform.OS == 'ios' ? 0 : 50 }}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: '#111',
+        paddingTop: Platform.OS == 'ios' ? 0 : 50,
+      }}>
+      <GestureHandlerRootView style={{flex: 1}}>
         <View style={styles.container}>
           <StatusBar hidden={!!selectedChannel} />
           <Text style={styles.header}>Streaming Channels</Text>
@@ -110,7 +152,12 @@ export default function App() {
 
           <View style={styles.filterContainer}>
             {['All', 'Music', 'News', 'Movies', 'Religious'].map(g => (
-              <TouchableOpacity key={g} style={[styles.filterBtn, groupFilter === g && styles.filterActive]}
+              <TouchableOpacity
+                key={g}
+                style={[
+                  styles.filterBtn,
+                  groupFilter === g && styles.filterActive,
+                ]}
                 onPress={() => setGroupFilter(g)}>
                 <Text style={styles.filterText}>{g}</Text>
               </TouchableOpacity>
@@ -118,20 +165,20 @@ export default function App() {
           </View>
 
           {favorites.length > 0 && (
-            <View style={{ marginVertical: 10 }}>
+            <View style={{marginVertical: 10}}>
               <Text style={styles.favHeading}>⭐ Favorites</Text>
               <FlatList
                 data={channelData.filter(c => favorites.includes(c.title))}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 keyExtractor={item => item.title}
-                renderItem={({ item }) => (
+                renderItem={({item}) => (
                   <TouchableOpacity
                     style={styles.favCard}
                     onPress={() => {
                       setSelectedChannel(item);
                     }}>
-                    <Image source={{ uri: item.logo }} style={styles.favLogo} />
+                    <Image source={{uri: item.logo}} style={styles.favLogo} />
                   </TouchableOpacity>
                 )}
               />
@@ -154,7 +201,6 @@ export default function App() {
                 <Animated.View
                   {...panResponder.panHandlers}
                   style={[styles.videoContainer]}>
-
                   {loading && (
                     <LottieView
                       source={require('./src/assets/loading.json')}
@@ -165,7 +211,7 @@ export default function App() {
                   )}
                   <Video
                     ref={videoRef}
-                    source={{ uri: selectedChannel.url }}
+                    source={{uri: selectedChannel.url}}
                     style={StyleSheet.absoluteFillObject}
                     controls
                     resizeMode="contain"
@@ -177,13 +223,13 @@ export default function App() {
                   />
                 </Animated.View>
               )}
-              <TouchableOpacity style={styles.closeBtn} onPress={() => setSelectedChannel(false)}>
+              <TouchableOpacity
+                style={styles.closeBtn}
+                onPress={() => setSelectedChannel(false)}>
                 <Text style={styles.closeText}>Close</Text>
               </TouchableOpacity>
-
             </View>
           </Modal>
-
         </View>
       </GestureHandlerRootView>
     </SafeAreaView>
@@ -191,9 +237,9 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 10 },
+  container: {flex: 1, paddingHorizontal: 10},
 
-  header: { fontSize: 22, color: '#fff', textAlign: 'center', marginBottom: 10 },
+  header: {fontSize: 22, color: '#fff', textAlign: 'center', marginBottom: 10},
 
   searchBar: {
     backgroundColor: '#fff',
@@ -214,8 +260,8 @@ const styles = StyleSheet.create({
     margin: 4,
     borderRadius: 10,
   },
-  filterActive: { backgroundColor: 'green' },
-  filterText: { color: '#fff' },
+  filterActive: {backgroundColor: 'green'},
+  filterText: {color: '#fff'},
   card: {
     flex: 1,
     backgroundColor: '#fff',
@@ -226,9 +272,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
   },
-  logo: { width: 100, height: 60, resizeMode: 'contain', marginBottom: 5 },
-  title: { color: '#fff', fontSize: 14, textAlign: 'center' },
-  modalContainer: { flex: 1, backgroundColor: 'black', justifyContent: 'center' },
+  logo: {width: 100, height: 60, resizeMode: 'contain', marginBottom: 5},
+  title: {color: '#fff', fontSize: 14, textAlign: 'center'},
+  modalContainer: {flex: 1, backgroundColor: 'black', justifyContent: 'center'},
   closeBtn: {
     position: 'absolute',
     top: 40,
@@ -237,7 +283,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#00000088',
     borderRadius: 6,
   },
-  closeText: { color: '#fff', fontSize: 16 },
+  closeText: {color: '#fff', fontSize: 16},
   overlayContainer: {
     position: 'absolute',
     top: '40%',
@@ -252,7 +298,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  overlayText: { color: 'white', fontSize: 16, marginBottom: 10 },
+  overlayText: {color: 'white', fontSize: 16, marginBottom: 10},
   overlayBarBackground: {
     width: '100%',
     height: 8,
@@ -265,44 +311,43 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    marginLeft: 10,
-    marginBottom: 5
+    marginBottom: 10,
   },
   favCard: {
-    width: 120,
+    width: 180,
     height: 100,
     backgroundColor: '#fff',
     borderRadius: 10,
     marginHorizontal: 5,
     padding: 8,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   favLogo: {
     width: 80,
     height: 50,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
   favTitle: {
     color: '#fff',
     fontSize: 12,
     textAlign: 'center',
-    marginTop: 5
+    marginTop: 5,
   },
 
   videoContainer: {
     flex: 1,
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   video: {
     width: '100%',
-    height: '100%'
+    height: '100%',
   },
   loader: {
     width: 100,
     height: 100,
     alignSelf: 'center',
     position: 'absolute',
-    top: '40%'
+    top: '40%',
   },
 });

@@ -10,14 +10,17 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-masked-view/masked-view": "^0.3.2",
     "@react-native-picker/picker": "^2.11.0",
     "lottie-react-native": "^7.2.2",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-gesture-handler": "^2.25.0",
+    "react-native-linear-gradient": "^2.8.3",
     "react-native-modal": "^14.0.0-rc.1",
     "react-native-orientation-locker": "^1.7.0",
     "react-native-picker-select": "^9.3.1",
+    "react-native-skeleton-placeholder": "^5.2.4",
     "react-native-sqlite-storage": "^6.0.1",
     "react-native-vector-icons": "^10.2.0",
     "react-native-video": "^6.14.0"
