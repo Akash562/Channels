@@ -1,19 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  View, Text, FlatList, Image, TouchableOpacity, Modal, StyleSheet,
-  Dimensions, TextInput, SafeAreaView, StatusBar,
-  Animated, PanResponder,
-  Platform
-} from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, Modal, StyleSheet, Dimensions, TextInput, SafeAreaView, StatusBar, Animated, PanResponder, Platform } from 'react-native';
 import Video from 'react-native-video';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
 import Orientation from 'react-native-orientation-locker';
 import SQLite from 'react-native-sqlite-storage';
 import LottieView from 'lottie-react-native';
-
-const { width } = Dimensions.get('window');
 
 import { channels } from './channels';
 
