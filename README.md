@@ -12,6 +12,14 @@ You can download the latest Android APK
 
 ---
 
+## 📷 Screenshots
+
+| Home Screen                     | Video Player with Controls        |
+| ------------------------------- | --------------------------------- |
+| ![Home](assets/screenshot1.png) | ![Player](assets/screenshot2.png) |
+
+---
+
 ## 🚀 Features
 
 * 🔍 **Search & Filter Channels**
